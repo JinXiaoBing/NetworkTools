@@ -8,19 +8,24 @@ import 'home_logic.dart';
 
 class HomePage extends StatelessWidget {
   HomePage({Key? key}) : super(key: key);
-  final ipController = TextEditingController()..text = "";
+  final ipController = TextEditingController()
+    ..text = "";
 
-  final portController = TextEditingController()..text = "";
-  final countController = TextEditingController()..text = "";
+  final portController = TextEditingController()
+    ..text = "";
+  final countController = TextEditingController()
+    ..text = "";
   late BuildContext _context;
 
   final logic = Get.put(HomeLogic());
-  final state = Get.find<HomeLogic>().state;
+  final state = Get
+      .find<HomeLogic>()
+      .state;
   final inputStyle = BrnFormItemConfig(
       titleTextStyle: BrnTextStyle(fontSize: 12),
       contentTextStyle: BrnTextStyle(fontSize: 12),
       hintTextStyle: BrnTextStyle(fontSize: 12),
-      titlePaddingSm:EdgeInsets.zero
+      titlePaddingSm: EdgeInsets.zero
   );
 
   @override
@@ -88,12 +93,14 @@ class HomePage extends StatelessWidget {
     return Container(
       width: 66,
       height: 32,
-      child: BrnNormalButton(
-        text: "开始",
-        alignment: Alignment.center,
-        onTap: _clickStart,
-        textStyle: TextStyle(fontSize: 12, color: Colors.white),
-      ),
+      child: Obx(() {
+        return BrnNormalButton(
+          text: state.isStart.isTrue ? "停止":"开始",
+          alignment: Alignment.center,
+          onTap: state.isStart.isTrue ? _clickStop : _clickStart,
+          textStyle: TextStyle(fontSize: 12, color: Colors.white),
+        );
+      }),
     );
   }
 
@@ -126,12 +133,14 @@ class HomePage extends StatelessWidget {
       String delay = "延迟：${pingResult.delay.toString()}ms";
       String jitter = "抖动：${pingResult.jitter.toString()}ms";
       result =
-          "第${logic.pingResults.length - index}次：来自 ${ipController.text} 的回复：$delay $jitter";
+      "第${logic.pingResults.length - index}次：来自 ${ipController
+          .text} 的回复：$delay $jitter";
     }
     return Text(result);
   }
 
   void _clickStart() {
+    state.isStart.value = true;
     String ip = ipController.text;
     String port = portController.text.isEmpty ? "80" : portController.text;
     String count = countController.text;
@@ -144,6 +153,10 @@ class HomePage extends StatelessWidget {
       return;
     }
     logic.startPing(ip, int.parse(port), int.parse(count));
+  }
+
+  void _clickStop(){
+    logic.stopPing();
   }
 
   _input() {
@@ -168,6 +181,7 @@ class HomePage extends StatelessWidget {
             color: Colors.white,
             borderRadius: BorderRadius.all(Radius.circular(5))),
         child: SingleChildScrollView(
+          physics: ClampingScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
